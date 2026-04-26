@@ -1,4 +1,4 @@
-const CACHE = "botc-storyteller-v29";
+const CACHE = "botc-storyteller-v30";
 
 
 const ASSETS = [
