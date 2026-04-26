@@ -6442,10 +6442,8 @@ function roleImageUrlList(roleId) {
   if (roleLocalPathsBeforeRemote()) {
     return [...locals, remote, legacy].filter(Boolean);
   }
-  if (botcIsFileProtocol()) {
-    return [legacy, ...locals, remote].filter(Boolean);
-  }
-  return [remote, ...locals, legacy].filter(Boolean);
+  // file:// und http(s)://: icons/*.webp (volle Token-Karten) zuerst
+  return [legacy, ...locals, remote].filter(Boolean);
 }
 
 /** Gleiche Reihenfolge wie roleImageUrlList (Sitze + Popups). */
