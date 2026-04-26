@@ -1,0 +1,2314 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BotC ST">
+<script>
+(function(){ var p = window.location.protocol; if (p === 'http:' || p === 'https:') { var l = document.createElement('link'); l.rel = 'manifest'; l.href = './manifest.json'; document.head.appendChild(l); } })();
+</script>
+<link rel="apple-touch-icon" href="icons/icon-192.svg">
+<title>BotC Storyteller</title>
+<noscript><style>body{font-family:system-ui,Georgia,serif;}</style></noscript>
+<style>
+/* Offline fallback - if Google Fonts fails, use system fonts */
+:root {
+  --font-heading: 'Cinzel Decorative', 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+  --font-body: 'Crimson Pro', 'Georgia', 'Times New Roman', serif;
+  --font-ui: 'Cinzel', 'Palatino Linotype', serif;
+}
+
+/* Offline font fallbacks (used when Google Fonts unavailable) */
+@font-face {
+  font-family: 'Crimson Pro';
+  src: local('Georgia'), local('serif');
+  font-style: normal; font-weight: 400;
+}
+@font-face {
+  font-family: 'Cinzel';
+  src: local('Georgia'), local('Times New Roman');
+  font-style: normal; font-weight: 400;
+}
+@font-face {
+  font-family: 'Cinzel Decorative';
+  src: local('Palatino Linotype'), local('Book Antiqua'), local('Palatino'), local('Georgia'), serif;
+  font-style: normal; font-weight: 400;
+}
+/* ═══════════════════════════════════════════
+   RESET & TOKENS
+═══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+* { touch-action: manipulation; }
+
+:root {
+  /* palette */
+  --ink:          #080612;
+  --ink2:         #100e1e;
+  --parchment:    #e8d9b8;
+  --parchment-dim:#a8956e;
+  --blood:        #7a1515;
+  --blood-hi:     #c42a2a;
+  --gold:         #c9a84c;
+  --gold-hi:      #e8c86a;
+  --gold-dim:     #6e5820;
+  --gold-glow:    rgba(201,168,76,.22);
+  --silver:       #8aaccc;
+  --silver-dim:   rgba(138,172,204,.4);
+  --good:         #3a6faf;
+  --good-hi:      #5d96df;
+  --good-glow:    rgba(58,111,175,.5);
+  --evil:         #9e2020;
+  --evil-hi:      #d44040;
+  --evil-glow:    rgba(158,32,32,.5);
+  --minion:       #6b2e8c;
+  --minion-hi:    #9a50c8;
+  --minion-glow:  rgba(107,46,140,.5);
+  --outsider:     #2a7a5a;
+  --outsider-hi:  #40b882;
+  --outsider-glow:rgba(42,122,90,.5);
+
+  /* surfaces */
+  --overlay-bg:   rgba(6,4,14,.94);
+  --card-bg:      rgba(16,12,28,.82);
+  --card-border:  rgba(201,168,76,.16);
+  --card-border-hi:rgba(201,168,76,.5);
+
+  /* text */
+  --text:         #e2d6bc;
+  --text-dim:     rgba(226,214,188,.5);
+  --text-faint:   rgba(226,214,188,.28);
+
+  --radius:       14px;
+  --radius-sm:    9px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: #080612;
+  background-color: var(--ink);
+  color: var(--text);
+  font-family: 'Crimson Pro', system-ui, Georgia, serif;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+}
+
+/* ═══════════════════════════════════════════
+   ATMOSPHERIC BACKGROUND
+═══════════════════════════════════════════ */
+#bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--phase-bg, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-color: #080612;
+}
+
+#bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 65% 60% at 50% 50%,  rgba(35,20,65,.9)   0%, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 15% 90%,  rgba(90,18,18,.35)  0%, transparent 55%),
+    radial-gradient(ellipse 40% 35% at 88% 10%,  rgba(18,22,75,.4)   0%, transparent 55%),
+    radial-gradient(ellipse 30% 25% at 50% 0%,   rgba(60,35,10,.3)   0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* grain overlay */
+#bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+#app {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+}
+
+#town {
+  position: absolute; inset: 0;
+}
+
+#town svg {
+  width: 100%; height: 100%;
+  position: absolute; inset: 0;
+}
+
+/* ═══════════════════════════════════════════
+   FLOATING TOP BAR
+═══════════════════════════════════════════ */
+#topBar {
+  position: absolute;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border-hi);
+  border-radius: 999px;
+  padding: 8px 16px 8px 20px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 30px rgba(0,0,0,.6), 0 0 0 1px rgba(201,168,76,.05);
+  white-space: nowrap;
+}
+
+#topBar::before {
+  content: '☽';
+  font-family: 'Cinzel', serif;
+  font-size: 14px;
+  color: var(--gold);
+  margin-right: 4px;
+  opacity: .8;
+}
+
+.topTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--gold);
+  opacity: .85;
+  text-transform: uppercase;
+}
+
+.topDivider {
+  width: 1px; height: 18px;
+  background: var(--card-border);
+}
+
+#scriptLabel {
+  font-family: 'Crimson Pro', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text-dim);
+}
+
+.topBtn {
+  height: 30px; padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: rgba(201,168,76,.07);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  cursor: pointer;
+  transition: all .18s;
+  text-transform: uppercase;
+}
+.topBtn:hover { background: rgba(201,168,76,.16); border-color: var(--card-border-hi); color: var(--gold); }
+.topBtn.primary { border-color: var(--gold-dim); background: rgba(201,168,76,.12); color: var(--gold); }
+.topBtn.primary:hover { background: rgba(201,168,76,.24); }
+
+.nightBadge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(201,168,76,.1);
+  border: 1px solid rgba(201,168,76,.3);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ═══════════════════════════════════════════
+   FLOATING SIDE PANEL (right edge)
+═══════════════════════════════════════════ */
+#sidePanel {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 300px;
+  padding-right: env(safe-area-inset-right);
+  background: var(--overlay-bg);
+  border-left: 1px solid var(--card-border);
+  display: flex; flex-direction: column;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  z-index: 20;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+}
+
+#sidePanel.collapsed { transform: translateX(100%); }
+
+#sidePanelHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--card-border);
+  display: flex; align-items: center; gap: 10px;
+}
+
+.panelSectionTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .6;
+  margin-bottom: 8px;
+}
+
+#sidePanelBody {
+  flex: 1; overflow-y: auto; padding: 14px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+#sidePanelBody::-webkit-scrollbar { width: 3px; }
+#sidePanelBody::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 99px; }
+
+/* ── STATS GRID ── */
+.statsGrid {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 7px;
+  margin-bottom: 12px;
+}
+.statCell {
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 8px 6px;
+  text-align: center;
+}
+.statVal {
+  font-family: 'Cinzel', serif;
+  font-size: 22px; font-weight: 700;
+  line-height: 1; margin-bottom: 2px;
+}
+.statVal.g { color: var(--good-hi); }
+.statVal.e { color: var(--evil-hi); }
+.statVal.gold { color: var(--gold); }
+.statLbl { font-size: 9px; letter-spacing: .1em; text-transform: uppercase; opacity: .45; font-family: 'Cinzel', serif; }
+
+/* ── MODIFIER PANEL (Phase 2) ── */
+.modifier-panel {
+  background: rgba(255, 100, 100, 0.1);
+  border: 2px solid var(--evil-hi, #ff6464);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+.modifier-panel h3 { margin: 0 0 10px 0; color: var(--evil-hi, #d44040); }
+.modifier-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.modifier-item.modifier-ok { border-left: 4px solid #4ade80; }
+.modifier-item.modifier-warning { border-left: 4px solid #facc15; }
+.modifier-name { font-weight: bold; min-width: 100px; }
+.modifier-effect { color: #fbbf24; font-family: monospace; }
+.modifier-type { font-size: 16px; }
+.modifier-note { color: #999; font-size: 12px; margin-left: auto; }
+.modifier-status { padding: 10px; border-radius: 4px; text-align: center; }
+.modifier-status.status-valid {
+  background: rgba(74, 222, 128, 0.2);
+  border: 1px solid #4ade80;
+  color: #4ade80;
+}
+.modifier-status.status-warning {
+  background: rgba(250, 204, 21, 0.2);
+  border: 1px solid #facc15;
+  color: #f59e0b;
+}
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(0,0,0,.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay .modal-content {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 20px;
+  max-width: 400px;
+  width: 100%;
+}
+.modal-overlay .modal-content h2 { margin: 0 0 12px 0; font-size: 1.2rem; }
+.modal-overlay .modal-content p { margin: 0 0 10px 0; opacity: .9; }
+.modal-overlay .modal-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.modal-overlay .modal-buttons button {
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(201,168,76,.2);
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.modal-overlay .modal-buttons button:hover { background: rgba(201,168,76,.35); }
+.modifier-text { color: var(--gold); }
+
+/* ── NIGHT ORDER ── */
+.noItem {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.06);
+  background: rgba(0,0,0,.18);
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+  overflow: hidden;
+}
+.noItem::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+  background: var(--gold-dim);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.noItem:hover { background: rgba(201,168,76,.07); border-color: var(--card-border); }
+.noItem:hover::before { opacity: 1; }
+.noItem.done { opacity: .35; }
+.noItem.done .noCheckBox { background: rgba(201,168,76,.25); border-color: var(--gold-dim); }
+.noItem.system { background: rgba(201,168,76,.04); border-color: rgba(201,168,76,.1); }
+.noItem.current { border-color: rgba(201,168,76,.45); background: rgba(201,168,76,.08); box-shadow: 0 0 12px rgba(201,168,76,.12); }
+.noItem.current::before { opacity: 1; background: var(--gold); }
+
+.noCheckBox {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border-radius: 5px;
+  border: 1.5px solid rgba(201,168,76,.4);
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.noLabel { font-size: 13px; flex: 1; line-height: 1.25; color: var(--text); }
+.noSeatTag {
+  font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: .08em;
+  color: var(--gold); opacity: .65; flex-shrink: 0;
+}
+
+.noActions { display: flex; gap: 7px; margin-top: 10px; }
+
+/* ═══════════════════════════════════════════
+   SEAT POPUP (floating near seat)
+═══════════════════════════════════════════ */
+#seatPopup {
+  position: absolute; z-index: 60;
+  width: 280px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border-hi);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.75),
+    0 0 0 1px rgba(201,168,76,.07),
+    inset 0 1px 0 rgba(201,168,76,.14);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  padding: 0;
+  opacity: 0;
+  transform: scale(.92) translateY(10px);
+  transition: opacity .22s cubic-bezier(.34,1.2,.64,1), transform .22s cubic-bezier(.34,1.2,.64,1);
+  pointer-events: none;
+  overflow: hidden;
+}
+#seatPopup.open {
+  opacity: 1; transform: scale(1) translateY(0);
+  pointer-events: all;
+}
+
+/* coloured header stripe per team */
+#seatPopup .popupStripe {
+  height: 3px; width: 100%;
+  background: var(--gold);
+  transition: background .2s;
+}
+#seatPopup.team-good .popupStripe { background: linear-gradient(90deg, var(--good), var(--good-hi)); }
+#seatPopup.team-evil .popupStripe { background: linear-gradient(90deg, var(--evil), var(--evil-hi)); }
+#seatPopup.team-minion .popupStripe { background: linear-gradient(90deg, var(--minion), var(--minion-hi)); }
+#seatPopup.team-outsider .popupStripe { background: linear-gradient(90deg, var(--outsider), var(--outsider-hi)); }
+
+.popupInner { padding: 14px 16px 16px; }
+
+#popupHeader {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  margin-bottom: 12px;
+}
+#popupSeatNum {
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold); opacity: .6; margin-bottom: 2px;
+}
+#popupPlayerName {
+  font-family: 'Cinzel', serif;
+  font-size: 17px; font-weight: 700;
+  color: var(--text); line-height: 1.1;
+}
+.popupCloseBtn {
+  width: 26px; height: 26px; flex-shrink: 0;
+  border-radius: 8px; border: 1px solid var(--card-border);
+  background: transparent; color: var(--text-dim);
+  cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.popupCloseBtn:hover { background: rgba(255,255,255,.08); color: var(--text); }
+
+/* role badge in popup header */
+.roleChip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  font-size: 12px; font-family: 'Cinzel', serif;
+  letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+.roleChip .chipDot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.roleChip.good   { border-color: rgba(93,150,223,.4); background: rgba(58,111,175,.1); color: var(--good-hi); }
+.roleChip.good .chipDot { background: var(--good-hi); box-shadow: 0 0 5px var(--good-glow); }
+.roleChip.evil   { border-color: rgba(212,64,64,.4); background: rgba(158,32,32,.1); color: var(--evil-hi); }
+.roleChip.evil .chipDot { background: var(--evil-hi); box-shadow: 0 0 5px var(--evil-glow); }
+.roleChip.minion { border-color: rgba(154,80,200,.4); background: rgba(107,46,140,.1); color: var(--minion-hi); }
+.roleChip.minion .chipDot { background: var(--minion-hi); box-shadow: 0 0 5px var(--minion-glow); }
+.roleChip.outsider { border-color: rgba(64,184,130,.4); background: rgba(42,122,90,.1); color: var(--outsider-hi); }
+.roleChip.outsider .chipDot { background: var(--outsider-hi); box-shadow: 0 0 5px var(--outsider-glow); }
+.roleChip.none { color: var(--text-dim); }
+
+/* fields */
+input[type="text"], textarea, select {
+  width: 100%;
+  box-sizing: border-box;
+  background: #14122a;
+  color: #f7f5ff;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 10px;
+  padding: 10px 10px;
+  font-size: 14px;
+  outline: none;
+}
+.popupField { margin-bottom: 10px; }
+.popupFieldLabel {
+  font-family: 'Cinzel', serif; font-size: 9px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold); opacity: .55; margin-bottom: 5px;
+}
+.popupInput {
+  width: 100%; background: #14122a;
+  border: 1px solid rgba(255,255,255,.15); border-radius: 10px;
+  padding: 10px 11px; color: #f7f5ff;
+  font-family: 'Crimson Pro', serif; font-size: 14px;
+  outline: none; transition: border-color .15s;
+}
+.popupInput:focus { border-color: var(--card-border-hi); }
+
+/* status pills */
+.statusRow { display: flex; gap: 6px; }
+.statusPill {
+  flex: 1; padding: 7px 8px; text-align: center;
+  border-radius: 8px; border: 1px solid var(--card-border);
+  background: rgba(0,0,0,.2);
+  font-family: 'Cinzel', serif; font-size: 10px;
+  letter-spacing: .06em; cursor: pointer;
+  transition: all .15s; color: var(--text-dim);
+}
+.statusPill.alive.on { border-color: rgba(93,150,223,.45); background: rgba(58,111,175,.14); color: var(--good-hi); }
+.statusPill.dead.on  { border-color: rgba(212,64,64,.35); background: rgba(158,32,32,.12); color: var(--evil-hi); }
+
+/* marker chips */
+.markerCloud { display: flex; flex-wrap: wrap; gap: 5px; }
+.markerChip {
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  font-size: 11px; font-family: 'Cinzel', serif;
+  letter-spacing: .04em; cursor: pointer;
+  color: var(--text-dim); transition: all .15s;
+}
+.markerChip:hover { background: rgba(255,255,255,.1); color: var(--text); }
+.markerChip.on { border-color: rgba(201,168,76,.45); background: rgba(201,168,76,.12); color: var(--gold); }
+.markerChip.on.m-Poisoned { border-color: rgba(158,32,32,.5); background: rgba(158,32,32,.12); color: var(--evil-hi); }
+.markerChip.on.m-Protected { border-color: rgba(58,111,175,.5); background: rgba(58,111,175,.12); color: var(--good-hi); }
+.markerChip.on.m-Drunk { border-color: rgba(107,46,140,.5); background: rgba(107,46,140,.12); color: var(--minion-hi); }
+
+.reminderCloud { display: flex; flex-wrap: wrap; gap: 5px; }
+.reminderChip {
+  min-height: 44px; min-width: 44px;
+  padding: 4px 9px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(255,255,255,.04);
+  font-size: 11px; font-family: 'Cinzel', serif;
+  letter-spacing: .04em; cursor: pointer;
+  color: var(--text-dim); transition: all .15s;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.reminderChip:hover { background: rgba(255,255,255,.1); color: var(--text); }
+.reminderChip.on { border-color: rgba(201,168,76,.45); background: rgba(201,168,76,.12); color: var(--gold); }
+.popupNotes { resize: vertical; min-height: 60px; }
+
+/* popup footer */
+.popupFooter { display: flex; gap: 7px; margin-top: 12px; }
+.popupBtn {
+  flex: 1; height: 34px; border-radius: 9px;
+  border: 1px solid var(--card-border);
+  background: rgba(201,168,76,.07);
+  color: var(--text); font-family: 'Cinzel', serif;
+  font-size: 10px; font-weight: 600; letter-spacing: .07em;
+  cursor: pointer; transition: all .18s;
+  text-transform: uppercase;
+}
+.popupBtn:hover { background: rgba(201,168,76,.15); border-color: var(--card-border-hi); }
+.popupBtn.danger { border-color: rgba(212,64,64,.3); background: rgba(158,32,32,.07); }
+.popupBtn.danger:hover { background: rgba(158,32,32,.18); border-color: rgba(212,64,64,.5); }
+
+/* ═══════════════════════════════════════════
+   PANEL TOGGLE BUTTON (floating left of panel)
+═══════════════════════════════════════════ */
+#panelToggleBtn {
+  position: absolute;
+  right: 308px; top: 50%;
+  transform: translateY(-50%);
+  z-index: 25;
+  width: 28px; height: 48px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); font-size: 13px;
+  transition: all .3s cubic-bezier(.4,0,.2,1), background .18s;
+  backdrop-filter: blur(10px);
+}
+#panelToggleBtn:hover { background: rgba(201,168,76,.14); }
+#panelToggleBtn.collapsed { right: 8px; border-radius: 8px; border-right: 1px solid var(--card-border); }
+
+/* ═══════════════════════════════════════════
+   SVG SEAT STYLES
+═══════════════════════════════════════════ */
+.seatG { cursor: pointer; }
+
+/* glow filters defined in SVG defs */
+
+/* ═══════════════════════════════════════════
+   GENERAL UTILS
+═══════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 12px;
+  border-radius: 8px; border: 1px solid var(--card-border);
+  background: rgba(201,168,76,.06); color: var(--text);
+  font-family: 'Cinzel', serif; font-size: 10px;
+  font-weight: 600; letter-spacing: .07em;
+  cursor: pointer; transition: all .15s;
+  text-transform: uppercase; white-space: nowrap;
+}
+.btn:hover { background: rgba(201,168,76,.14); border-color: var(--card-border-hi); }
+.btn.sm { height: 26px; font-size: 9px; padding: 0 10px; }
+.btn.primary { border-color: var(--gold-dim); background: rgba(201,168,76,.12); color: var(--gold); }
+.btn.primary:hover { background: rgba(201,168,76,.22); border-color: var(--gold); }
+
+.divider { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); margin: 10px 0; }
+
+/* ═══════════════════════════════════════════
+   DEMO CONTROLS (bottom center)
+═══════════════════════════════════════════ */
+#demoBar {
+  position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 100;
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(6,4,14,.96); border: 1px solid var(--card-border-hi);
+  border-radius: 999px; padding: 6px 14px;
+  backdrop-filter: blur(14px); box-shadow: 0 4px 20px rgba(0,0,0,.6);
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .07em;
+}
+.demoLabel { color: var(--gold-dim); margin-right: 2px; }
+.demoBtn {
+  padding: 4px 12px; border-radius: 999px;
+  border: 1px solid transparent; background: transparent;
+  color: var(--text-dim); cursor: pointer;
+  font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: .06em;
+  transition: all .15s;
+}
+.demoBtn:hover { color: var(--gold); border-color: var(--card-border); }
+.demoBtn.on { background: rgba(201,168,76,.14); border-color: var(--card-border-hi); color: var(--gold); }
+
+/* ═══════════════════════════════════════════
+   ROLE ABILITY TOOLTIP (appears on hover)
+═══════════════════════════════════════════ */
+#abilityTooltip {
+  position: absolute; z-index: 70;
+  max-width: 220px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border-hi);
+  border-radius: 12px; padding: 10px 13px;
+  pointer-events: none;
+  opacity: 0; transition: opacity .15s;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.6);
+}
+#abilityTooltip.show { opacity: 1; }
+.abilityName {
+  font-family: 'Cinzel', serif; font-size: 11px; font-weight: 700;
+  color: var(--gold); margin-bottom: 5px; letter-spacing: .05em;
+}
+.abilityText {
+  font-size: 12px; line-height: 1.45;
+  font-style: italic; color: var(--text-dim);
+}
+
+/* ═══════════════════════════════════════════
+   CANDLE VIGNETTE (subtle corners)
+═══════════════════════════════════════════ */
+#vignette {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 100% 100% at 50% 50%, transparent 55%, rgba(0,0,0,.7) 100%);
+}
+
+@keyframes flicker {
+  0%,100%{ opacity:1; } 45%{ opacity:.96; } 50%{ opacity:.98; } 55%{ opacity:.94; } 70%{ opacity:1; }
+}
+
+/* ═══════════════════════════════════════════
+   SEAT SVG — inline styles via JS
+═══════════════════════════════════════════ */
+@keyframes pulseRing {
+  0%   { stroke-opacity:.6; r: var(--pr-start,44); }
+  100% { stroke-opacity:0;  r: var(--pr-end,60); }
+}
+
+/* ═══════════════════════════════════════════
+   PORTRAIT OVERLAY (iPad UX)
+═══════════════════════════════════════════ */
+#portraitHint {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  text-align: center;
+  white-space: pre-line;
+}
+#portraitHint .portraitIcon {
+  width: 80px; height: 80px;
+  animation: portraitRotate 2s ease-in-out infinite;
+}
+@keyframes portraitRotate {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+@media (orientation: portrait) {
+  #app { pointer-events: none; }
+  #portraitHint {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--overlay-bg);
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 1.25rem;
+    letter-spacing: .12em;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   SETUP MODAL (z-index 200, touch 44px)
+═══════════════════════════════════════════ */
+.setupBackdrop {
+  display: none;
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.65);
+  cursor: pointer;
+}
+.setupBackdrop.open { display: block; }
+
+.setupModal {
+  display: none;
+  position: fixed; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 201;
+  max-width: 90vw; max-height: 90vh;
+  width: 720px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: 0 24px 70px rgba(0,0,0,.75);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  overflow: hidden;
+}
+.setupModal.open { display: block; }
+
+.setupModalInner {
+  display: flex; flex-direction: column;
+  max-height: 90vh;
+}
+.setupHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--card-border);
+}
+.setupTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: .1em; color: var(--gold);
+  margin: 0;
+}
+.setupCloseBtn {
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: transparent; color: var(--text-dim);
+  cursor: pointer; font-size: 16px;
+  transition: background .15s, color .15s;
+}
+.setupCloseBtn:hover, .setupCloseBtn:focus { background: rgba(255,255,255,.1); color: var(--text); }
+
+.setupBody {
+  display: flex; flex: 1; min-height: 0;
+  overflow: hidden;
+}
+.setupCol {
+  padding: 12px 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+.setupColPlayers { width: 60%; border-right: 1px solid var(--card-border); }
+.setupColRoles { width: 40%; }
+
+.setupSection { margin-bottom: 12px; }
+.setupSectionLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 9px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold); opacity: .7; margin-bottom: 6px;
+}
+.setupStepper {
+  display: flex; align-items: center; gap: 8px;
+}
+.setupStepperBtn {
+  min-width: 44px; min-height: 44px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(201,168,76,.08);
+  color: var(--gold);
+  font-size: 18px; font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.setupStepperBtn:hover { background: rgba(201,168,76,.18); }
+.setupStepperVal {
+  min-width: 36px; text-align: center;
+  font-family: 'Cinzel', serif; font-size: 16px; font-weight: 700;
+  color: var(--text);
+}
+.setupBtn, .setupFooterBtn {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(201,168,76,.07);
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .06em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background .15s, border-color .15s;
+}
+.setupBtn:hover, .setupFooterBtn:hover { background: rgba(201,168,76,.14); }
+.setupBtnAuto { margin-bottom: 10px; }
+
+.setupPlayerList { display: flex; flex-direction: column; gap: 6px; }
+.setupPlayerRow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(0,0,0,.2);
+}
+.setupPlayerRow.focused { border-color: var(--card-border-hi); box-shadow: 0 0 0 1px rgba(201,168,76,.2); }
+.setupPlayerNum {
+  flex-shrink: 0; width: 28px; text-align: center;
+  font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); opacity: .8;
+}
+.setupPlayerNameIn {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  background: #14122a;
+  color: #f7f5ff;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  cursor: text;
+  outline: none;
+  flex-basis: 50%;
+  max-width: 50%;
+}
+.setupPlayerNameIn:focus {
+  border-color: rgba(201,168,76,.5);
+  background: #1a1830;
+}
+.setupPlayerRoleSel {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  background: #14122a;
+  color: #f7f5ff;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  outline: none;
+  flex-basis: 50%;
+  max-width: 50%;
+}
+.setupPlayerRoleSel:focus {
+  border-color: rgba(201,168,76,.5);
+  background: #1a1830;
+}
+.setupPlayerAlive {
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(0,0,0,.2);
+  cursor: pointer;
+  font-size: 14px;
+}
+.setupPlayerAlive.on { background: rgba(58,111,175,.2); border-color: rgba(93,150,223,.5); color: var(--good-hi); }
+.setupPlayerDel {
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(212,64,64,.3);
+  border-radius: 8px;
+  background: rgba(158,32,32,.08);
+  color: var(--evil-hi);
+  cursor: pointer; font-size: 16px;
+}
+.setupPlayerDel:hover { background: rgba(158,32,32,.2); }
+
+.setupScriptTabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.setupScriptTab {
+  min-height: 44px; padding: 0 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(0,0,0,.2);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif; font-size: 10px;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.setupScriptTab.on { border-color: var(--gold-dim); background: rgba(201,168,76,.12); color: var(--gold); }
+.setupRoleCounter {
+  font-family: 'Cinzel', serif; font-size: 10px;
+  color: var(--text-dim); margin-bottom: 8px;
+}
+.setupRoleCounter.warn { color: var(--blood-hi); }
+.setupRolePool { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.setupRoleGroupLabel {
+  font-family: 'Cinzel', serif; font-size: 9px;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold); opacity: .6; margin: 6px 0 4px;
+}
+.setupRoleChip {
+  min-height: 44px;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: rgba(0,0,0,.2);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.setupRoleChip:hover { background: rgba(201,168,76,.1); }
+.setupRoleChip .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.setupRoleChip.assigned { opacity: .75; }
+.setupRoleChip .check { margin-left: auto; font-size: 11px; color: var(--good-hi); }
+
+.setupFooter {
+  display: flex; gap: 10px; justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid var(--card-border);
+}
+.setupFooterBtn { flex: 0 0 auto; }
+.setupFooterBtnPrimary { border-color: var(--gold-dim); background: rgba(201,168,76,.15); color: var(--gold); }
+.setupFooterBtnPrimary:hover { background: rgba(201,168,76,.28); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  padding: 12px 20px;
+  background: var(--overlay-bg);
+  border: 1px solid var(--card-border-hi);
+  border-radius: var(--radius);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: .06em;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+.toast.show { opacity: 1; pointer-events: auto; }
+.toastDetailsBtn {
+  margin-left: 8px; padding: 4px 10px;
+  font-family: 'Cinzel', serif; font-size: 11px;
+  background: rgba(201,168,76,.2); border: 1px solid var(--gold-dim);
+  border-radius: 6px; color: var(--gold);
+  cursor: pointer; min-height: 44px; display: inline-flex; align-items: center;
+}
+.summaryRow {
+  padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid var(--card-border); border-radius: 8px;
+  background: rgba(0,0,0,.2);
+}
+.summaryRow.dead { opacity: .7; }
+.summaryRow .sName { font-weight: 600; }
+.summaryRow .sMeta { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+.summaryRow .sMeta span { margin-right: 8px; }
+
+/* Assistent mode: larger Weiter, min 48px */
+.topBtnLink { text-decoration: none; color: inherit; display: inline-flex; align-items: center; }
+.topBtn.assistantNext { min-height: 48px; font-size: 12px; padding: 0 18px; }
+#topBarPrevBtn.assistantPrev { min-height: 48px; }
+.topBarAssistant#topBarAssistantTitle {
+  flex: 1; text-align: center;
+  font-size: 14px; font-weight: 700;
+  color: var(--gold);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.popupAbilityBlockWrap { margin-bottom: 10px; }
+.popupAbilityBlock {
+  padding: 10px 12px;
+  background: rgba(201,168,76,.12);
+  border: 1px solid var(--gold-dim);
+  border-radius: 8px;
+  color: var(--gold);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Panel tabs */
+.panelTabs { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 10px; border-bottom: 1px solid var(--card-border); }
+.panelTab {
+  flex: 1 1 22%; min-height: 44px; min-width: 0;
+  padding: 8px 6px;
+  font-family: 'Cinzel', serif; font-size: 9px; font-weight: 600;
+  letter-spacing: .06em; color: var(--text-dim);
+  background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer; transition: color .15s, border-color .15s;
+}
+.panelTab:hover { color: var(--text); }
+.panelTab.on { color: var(--gold); border-bottom-color: var(--gold-dim); }
+.grimoireRow {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid var(--card-border); border-radius: 8px;
+  background: rgba(0,0,0,.2);
+  cursor: pointer; min-height: 44px;
+  transition: background .15s;
+}
+.grimoireRow:hover { background: rgba(201,168,76,.08); }
+.grimoireRow.dead { opacity: .4; }
+.grimoireRow .gSeat { flex-shrink: 0; width: 28px; font-family: 'Cinzel', serif; font-size: 11px; color: var(--gold); }
+.grimoireRow .gName { flex: 1; min-width: 0; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grimoireRow.dead .gName { text-decoration: line-through; }
+.grimoireRow .gRole { font-size: 11px; flex-shrink: 0; max-width: 90px; overflow: hidden; text-overflow: ellipsis; }
+.grimoireRow .gStatus { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.grimoireRow .gStatus.alive { background: var(--good-hi); }
+.grimoireRow .gStatus.dead { background: var(--blood-hi); }
+.grimoireRow .gReminders { display: flex; flex-wrap: wrap; gap: 3px; flex-shrink: 0; }
+.grimoireRow .gReminderChip { font-size: 9px; padding: 2px 5px; border-radius: 999px; background: rgba(201,168,76,.2); color: var(--gold); }
+.grimoireRow .gNote { font-size: 10px; color: var(--text-dim); font-style: italic; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; flex-basis: 100%; }
+.grimoireRow .gRole.team-good { color: var(--good-hi); }
+.grimoireRow .gRole.team-evil { color: var(--evil-hi); }
+.grimoireRow .gRole.team-minion { color: var(--minion-hi, #9a6bc4); }
+.grimoireRow .gRole.team-outsider { color: var(--sea-hi, #40b882); }
+/* Phase K — Kern-Panel */
+.kernRoleRow { border-left: 3px solid rgba(201,168,76,.45); }
+.kernRoleRow.team-good { border-left-color: var(--good-hi); }
+.kernRoleRow.team-evil { border-left-color: var(--evil-hi); }
+.kernRoleRow.team-minion { border-left-color: var(--minion-hi, #9a6bc4); }
+.kernRoleRow.team-outsider { border-left-color: var(--sea-hi, #40b882); }
+.grimoireRow { flex-wrap: wrap; }
+.scrollContainer { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+.evil-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
+}
+.extra-vi-container {
+  margin-top: 12px;
+  padding: 10px;
+  border-top: 2px dashed #fbbf24;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.extra-vi-container p { flex-basis: 100%; }
+.drunk-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 14px;
+  background: #666;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.role-button.drunk, .extra-vi-btn.drunk {
+  position: relative;
+  border-color: #fbbf24 !important;
+  background: rgba(251, 191, 36, 0.1) !important;
+}
+.marionette-warning {
+  background: rgba(255, 170, 0, 0.2);
+  border: 2px solid #ffaa00;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 10px 0;
+  color: #ffaa00;
+  text-align: center;
+  font-weight: bold;
+}
+/* Demon-Buttons bei Summoner disablen */
+[data-team="demon"] button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(100, 0, 0, 0.1) !important;
+}
+[data-team="demon"] button:disabled:hover {
+  background: rgba(100, 0, 0, 0.1) !important;
+  border-color: #999 !important;
+}
+[data-team="minion"] button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(80, 0, 0, 0.15) !important;
+}
+[data-team="minion"] button:disabled:hover {
+  background: rgba(80, 0, 0, 0.15) !important;
+  border-color: #999 !important;
+}
+.kazali-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+.kazali-buttons button {
+  padding: 12px;
+  border-radius: 4px;
+}
+.btn-cancel {
+  width: 100%;
+  background: rgba(100, 100, 100, 0.2);
+  border-color: #666;
+}
+
+/* ═══════════════════════════════════════════
+   TOOLS DROPDOWN (⋯ in TopBar)
+═══════════════════════════════════════════ */
+.topBarMoreWrap {
+  position: relative;
+}
+.topBarMoreBtn {
+  min-width: 36px;
+  padding: 0 10px;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+.topBarMoreMenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 200;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 175px;
+  background: rgba(6,4,14,.97);
+  border: 1px solid rgba(201,168,76,.35);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow:
+    0 16px 50px rgba(0,0,0,.75),
+    0 0 0 1px rgba(201,168,76,.05),
+    inset 0 1px 0 rgba(201,168,76,.1);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+.topBarMoreWrap:hover .topBarMoreMenu,
+.topBarMoreWrap:focus-within .topBarMoreMenu {
+  display: flex;
+}
+.topBarMoreMenu button,
+.topBarMoreMenu a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 9px;
+  color: var(--text);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+.topBarMoreMenu button:hover,
+.topBarMoreMenu a:hover {
+  background: rgba(201,168,76,.13);
+  color: var(--gold);
+}
+.menuDivider {
+  height: 1px;
+  background: var(--card-border);
+  margin: 4px 2px;
+}
+/* ═══════════════════════════════════════════
+   NOMINATION BANNER
+═══════════════════════════════════════════ */
+#nominationBanner {
+  display: none;
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 32;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 7px 18px;
+  background: rgba(8,6,20,.93);
+  border: 1px solid rgba(201,168,76,.35);
+  border-radius: 999px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 4px 22px rgba(0,0,0,.6);
+  pointer-events: none;
+  max-width: 85vw;
+  white-space: nowrap;
+}
+.nomBannerLabel {
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: .7;
+  flex-shrink: 0;
+}
+.nomBannerEntry {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 13px;
+  line-height: 1;
+}
+.nomBannerA { color: var(--gold); font-weight: 600; }
+.nomBannerArrow { color: rgba(226,214,188,.3); font-size: 10px; }
+.nomBannerB { color: #e07777; font-weight: 600; }
+
+.menuDanger { color: rgba(226,214,188,.6) !important; }
+.menuDanger:hover {
+  background: rgba(212,64,64,.13) !important;
+  color: var(--evil-hi) !important;
+}
+
+/* ═══════════════════════════════════════════
+   ENHANCED INPUT FIELDS
+═══════════════════════════════════════════ */
+input[type="text"], textarea, select {
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  font-family: 'Crimson Pro', Georgia, serif;
+}
+input[type="text"]:focus,
+textarea:focus {
+  border-color: rgba(201,168,76,.55) !important;
+  background: rgba(22,18,42,.98) !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,.1), inset 0 1px 6px rgba(0,0,0,.3) !important;
+}
+select:focus {
+  border-color: rgba(201,168,76,.45) !important;
+  background: rgba(22,18,42,.98) !important;
+  box-shadow: 0 0 0 2px rgba(201,168,76,.08) !important;
+}
+::placeholder {
+  color: rgba(226,214,188,.28);
+  font-style: italic;
+}
+.popupInput {
+  transition: border-color .2s, box-shadow .2s, background .2s;
+  font-family: 'Crimson Pro', Georgia, serif;
+}
+.popupInput:focus {
+  border-color: rgba(201,168,76,.6) !important;
+  background: rgba(22,18,42,.98) !important;
+  box-shadow: 0 0 0 3px rgba(201,168,76,.1) !important;
+}
+
+/* ═══════════════════════════════════════════
+   POPUP REFINEMENTS
+═══════════════════════════════════════════ */
+#seatPopup {
+  border-color: rgba(201,168,76,.3);
+}
+.popupStripe { height: 4px; }
+#popupPlayerName { font-size: 19px; }
+.popupFooter {
+  border-top: 1px solid var(--card-border);
+  padding-top: 10px;
+  margin-top: 4px;
+  gap: 6px;
+}
+.popupBtn { height: 38px; border-radius: 10px; font-size: 10.5px; }
+.popupBtn.primary {
+  border-color: var(--gold-dim);
+  background: rgba(201,168,76,.15);
+  color: var(--gold);
+}
+.popupBtn.primary:hover { background: rgba(201,168,76,.26); }
+.popupFieldLabel {
+  font-size: 9.5px;
+  letter-spacing: .14em;
+}
+.statusPill { transition: all .15s; border-radius: 9px; }
+.popupField { margin-bottom: 11px; }
+
+/* ═══════════════════════════════════════════
+   SETUP MODAL — FULL SCREEN
+═══════════════════════════════════════════ */
+.modalContent {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) transparent;
+}
+.modalContent::-webkit-scrollbar { width: 3px; }
+.modalContent::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 99px; }
+.modalContent h2 {
+  font-family: 'Cinzel Decorative', 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  color: var(--gold);
+  text-align: center;
+  margin: 0 0 24px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--card-border);
+  text-shadow: 0 0 24px rgba(201,168,76,.35);
+}
+/* Phase containers fill full screen */
+#setupPhase0, #setupPhase1, #setupPhase2, #drunkSelectionModal {
+  flex: 1;
+  width: 100%;
+  padding: 32px 5vw 48px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* Phase 1 ist Vollbild-Overlay — keine flex/padding-Constraints */
+#setupPhase1 {
+  padding: 0 !important;
+  overflow: visible !important;
+  flex: none !important;
+}
+#setupPhase1 #setupPhase1Seats {
+  max-height: none !important;
+  min-height: 0 !important;
+}
+#setupPhase2 {
+  max-height: none !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* ═══════════════════════════════════════════
+   NIGHT BADGE PULSE
+═══════════════════════════════════════════ */
+@keyframes nightPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  25%  { box-shadow: 0 0 0 7px rgba(201,168,76,.5); }
+  100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+}
+.nightBadge.pulse { animation: nightPulse .8s ease-out forwards; }
+
+/* ═══════════════════════════════════════════
+   INACTIVE MODE BUTTONS DIMMED
+═══════════════════════════════════════════ */
+#topBarAssistentBtn:not(.primary),
+#topBarSpyBtn:not(.primary) {
+  opacity: .55;
+}
+#topBarAssistentBtn:not(.primary):hover,
+#topBarSpyBtn:not(.primary):hover {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════
+   SCRIPT SELECTION CARDS
+═══════════════════════════════════════════ */
+.scriptCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 16px;
+  background: rgba(14,11,28,.75);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.34,1.2,.64,1);
+  min-width: 115px;
+  text-align: center;
+  color: var(--text);
+  font-family: inherit;
+}
+.scriptCard:hover {
+  background: rgba(201,168,76,.1);
+  border-color: rgba(201,168,76,.38);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,.45);
+}
+.scriptCard.active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,.16);
+  box-shadow: 0 0 0 2px rgba(201,168,76,.18), 0 8px 24px rgba(0,0,0,.45);
+  transform: translateY(-3px);
+}
+.scriptCardIcon { font-size: 26px; line-height: 1; }
+.scriptCardTitle {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-top: 3px;
+}
+.scriptCardDesc {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-style: italic;
+  line-height: 1.3;
+}
+
+/* ═══════════════════════════════════════════
+   PLAYER COUNT BUTTONS
+═══════════════════════════════════════════ */
+.playerCountBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  background: rgba(14,11,28,.7);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+.playerCountBtn:hover {
+  background: rgba(201,168,76,.1);
+  border-color: rgba(201,168,76,.35);
+  color: var(--text);
+}
+.playerCountBtn.active {
+  border-color: var(--gold);
+  background: rgba(201,168,76,.18);
+  color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(201,168,76,.12);
+}
+
+/* ═══════════════════════════════════════════
+   PANEL TABS: HORIZONTAL SCROLL
+═══════════════════════════════════════════ */
+.panelTabs {
+  flex-wrap: nowrap !important;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  gap: 0;
+}
+.panelTabs::-webkit-scrollbar { display: none; }
+.panelTab {
+  flex: 0 0 auto !important;
+  white-space: nowrap;
+  font-size: 8px !important;
+  padding: 8px 7px !important;
+  min-height: 40px !important;
+  min-width: 0 !important;
+}
+
+/* ═══════════════════════════════════════════
+   STATS GRID BIGGER + ANIMATED
+═══════════════════════════════════════════ */
+.statVal {
+  font-size: 28px !important;
+  transition: color .4s, transform .25s;
+  display: block;
+}
+.statVal.bump { transform: scale(1.2); }
+.statCell {
+  padding: 10px 6px;
+  transition: border-color .3s;
+}
+
+/* ═══════════════════════════════════════════
+   ROLE CHIP IN POPUP LARGER
+═══════════════════════════════════════════ */
+#roleChipEl .roleChip {
+  font-size: 13px;
+  padding: 6px 14px 6px 10px;
+  margin-bottom: 12px;
+  letter-spacing: .05em;
+}
+#roleChipEl .roleChip .chipDot { width: 9px; height: 9px; }
+
+/* ═══════════════════════════════════════════
+   SVG SEAT HOVER MORE INTENSE
+═══════════════════════════════════════════ */
+.seatG { cursor: pointer; transition: filter .18s; }
+.seatG:hover { filter: brightness(1.2) drop-shadow(0 0 12px rgba(201,168,76,.5)); }
+
+/* ═══════════════════════════════════════════
+   CINZEL FONT ON ALL LABELS
+═══════════════════════════════════════════ */
+.label,
+.sectionTitle,
+.panelSectionTitle,
+.popupFieldLabel,
+.setupSectionLabel,
+.setupRoleGroupLabel,
+.statLbl,
+.noCount,
+.dashText { font-family: 'Cinzel', serif !important; }
+.label { font-size: 9px; letter-spacing: .12em; }
+.popupFieldLabel { font-size: 9.5px; letter-spacing: .14em; }
+
+/* ═══════════════════════════════════════════
+   ABILITY OVERLAYS (openOverlay / beginPick)
+═══════════════════════════════════════════ */
+#abilityOverlay, #abilityPickOverlay {
+  animation: overlayFadeIn .18s ease both;
+}
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+#abilityOverlay > div, #abilityPickOverlay > div:first-child {
+  animation: overlaySlideUp .2s cubic-bezier(.22,.68,0,1.1) both;
+}
+@keyframes overlaySlideUp {
+  from { transform: translateY(18px) scale(.97); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Pick overlay: seat cards */
+#abilityPickOverlay {
+  position: fixed !important;
+  inset: 0 !important;
+}
+#abilityPickOverlay h2 {
+  font-size: clamp(20px, 2.5vw, 32px) !important;
+}
+/* Flex-wrap grid — cards auto-size, center-aligned, scrollable */
+#pickSeatGrid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 14px !important;
+  padding: 24px 28px !important;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  align-content: flex-start !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+#abilityPickOverlay [data-seat-id] {
+  width: clamp(130px, 15vw, 200px) !important;
+  min-height: clamp(130px, 15vw, 200px) !important;
+  flex: 0 0 clamp(130px, 15vw, 200px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border-radius: 18px !important;
+  font-size: clamp(14px, 1.5vw, 20px) !important;
+  cursor: pointer !important;
+  transition: background .12s, border-color .12s, box-shadow .12s, transform .1s;
+}
+#abilityPickOverlay [data-seat-id]:active {
+  transform: scale(.95);
+}
+#pickCancelBtn,
+#pickConfirmBtn {
+  height: clamp(52px, 6.5vh, 72px) !important;
+  font-size: clamp(14px, 1.4vw, 18px) !important;
+  flex: 1 !important;
+  min-width: 200px !important;
+}
+/* openOverlay button panel: flex-wrap, larger buttons */
+#abilityOverlay button:not(#abilityOverlayClose) {
+  min-height: 48px !important;
+  font-size: clamp(13px, 1.3vw, 17px) !important;
+  padding: 10px 18px !important;
+}
+
+/* Step ability card */
+#stepAbilityCard {
+  animation: cardSlideUp .22s cubic-bezier(.22,.68,0,1.1) both;
+}
+@keyframes cardSlideUp {
+  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0); opacity: 1; }
+}
+
+/* Private info overlay body alignment */
+.private-info-self,
+.private-info-token,
+.private-info-char-players,
+.private-info-two-char,
+.private-info-bluffs,
+.private-info-fake,
+.private-info-replacement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.private-info-evil,
+.private-info-text,
+.private-info-alignment {
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div id="portraitHint" aria-hidden="true">
+  <svg class="portraitIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c0 1.5.2 2.9.6 4.2"/></svg>
+  <span>BotC Storyteller&#10;Bitte Querformat verwenden</span>
+</div>
+<div id="bg"></div>
+<div id="vignette"></div>
+
+<div id="app">
+  <div id="town"><svg id="svgTown"></svg></div>
+
+  <!-- FLOATING TOP BAR -->
+  <div id="topBar">
+    <span class="topTitle topBarDefault">Grimoire</span>
+    <span class="topTitle topBarAssistant" id="topBarAssistantTitle" style="display:none;"></span>
+    <div class="topDivider topBarDefault"></div>
+    <span id="scriptLabel">Trouble Brewing</span>
+    <div class="topDivider topBarDefault"></div>
+    <span class="nightBadge" id="nightLabel">☽ Nacht 1</span>
+    <div class="topDivider topBarDefault"></div>
+    <button class="topBtn assistantPrev" id="topBarPrevBtn" onclick="prevStep()" style="display:none;" title="Zurück">← Zurück</button>
+    <button class="topBtn" id="topBarNextBtn" onclick="nextStep()">▶ Weiter</button>
+    <span class="nightBadge topBarAssistant" id="topBarStepCounter" style="display:none;">Step 1/1</span>
+    <button class="topBtn" id="topBarAssistentBtn" onclick="toggleAssistantMode()" title="Geführter Night-Order-Modus">☽ Assistent</button>
+    <button class="topBtn" id="topBarSpyBtn" onclick="toggleSpyViewMode()" title="Spy-Ansicht: Dämon-Bluffs im Kreis andeuten">👁 Spy</button>
+    <button class="topBtn" id="lynchBtn" onclick="triggerLynch()" title="Spieler am Tag hinrichten (Lynch)">⚔ Lynch</button>
+    <div class="topDivider"></div>
+    <button class="topBtn primary" onclick="openSetupModalPhase0()" title="Neues Spiel starten">⚙ Setup</button>
+    <button type="button" class="topBtn" id="tokenRevealBtn" onclick="tokenRevealMode ? stopTokenRevealMode() : startTokenRevealMode()" title="Token-Reveal-Modus">🎭 Tokens</button>
+    <div class="topBarMoreWrap">
+      <button class="topBtn topBarMoreBtn" title="Weitere Optionen">•••</button>
+      <div class="topBarMoreMenu">
+        <button onclick="botcExportClocktrackerDraft()">📋 Clocktracker</button>
+        <button onclick="exportGame()">⬆ Export</button>
+        <button onclick="document.getElementById('importFileInput').click()">⬇ Import</button>
+        <input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="onImportFile(event)">
+        <div class="menuDivider"></div>
+        <button class="menuDanger" onclick="resetToDemo()">↺ Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOMINATION BANNER -->
+  <div id="nominationBanner"></div>
+
+  <!-- SEAT POPUP -->
+  <div id="seatPopup">
+    <div class="popupStripe"></div>
+    <div class="popupInner">
+      <div id="popupHeader">
+        <div>
+          <div id="popupSeatNum">Sitz 1</div>
+          <div id="popupPlayerName">—</div>
+        </div>
+        <button class="popupCloseBtn" onclick="closePopup()">✕</button>
+      </div>
+      <div id="roleChipEl"></div>
+      <div class="popupField popupAbilityBlockWrap" id="popupAbilityBlockWrap" style="display:none;">
+        <div class="popupFieldLabel">Aktueller Step</div>
+        <div class="popupAbilityBlock" id="popupAbilityBlock"></div>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Name</div>
+        <input class="popupInput" id="popupNameIn" type="text" placeholder="Spielername…" oninput="onNameChange()">
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Status</div>
+        <div class="statusRow">
+          <div class="statusPill alive on" id="pillAlive" onclick="setAlive(true)">✦ Lebt</div>
+          <div class="statusPill dead"     id="pillDead"  onclick="setAlive(false)">✝ Tot (Nacht)</div>
+          <div class="statusPill dead" id="pillExecuted" style="background:rgba(180,40,40,.3);border-color:#c04040;" onclick="markExecuted()">⚔ Hingerichtet</div>
+        </div>
+      </div>
+      <div class="popupField" id="ghostVoteField" style="display:none;">
+        <div class="popupFieldLabel">Geisterstimme</div>
+        <div class="statusRow">
+          <div class="statusPill" id="pillGhostAvail" onclick="setGhostVote(false)" style="border-color:rgba(180,220,255,.5);color:rgba(180,220,255,.9);">👻 Verfügbar</div>
+          <div class="statusPill" id="pillGhostUsed"  onclick="setGhostVote(true)"  style="border-color:rgba(255,255,255,.15);opacity:.5;text-decoration:line-through;">👻 Verbraucht</div>
+        </div>
+        </div>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Rolle</div>
+        <select class="popupInput" id="popupRoleSel" onchange="onRoleChange()" style="padding:7px 11px; cursor:pointer;"></select>
+        <label class="popupOutsideScript" style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;opacity:.88;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="popupAllowOutsideRoles" onchange="onPopupAllowOutsideScriptChange()">
+          <span>Alle Rollen anzeigen (nicht auf Script)</span>
+        </label>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Marker</div>
+        <div class="markerCloud" id="markerCloud"></div>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Reminder</div>
+        <div class="reminderCloud" id="reminderCloud"></div>
+      </div>
+      <div class="popupField" id="popupStReminderWrap" style="display:none;">
+        <div class="popupFieldLabel">ST-Text aus Rolle (Referenz)</div>
+        <div id="popupStReminderBody" style="font-size:11px;line-height:1.45;color:var(--text-dim);padding:8px 10px;background:rgba(138,172,204,.06);border-radius:8px;border:1px solid var(--card-border);"></div>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Claim <span style="opacity:.65;font-weight:400;">(öffentlich / für Town-Panel)</span></div>
+        <textarea class="popupInput popupNotes" id="popupClaim" rows="2" placeholder="z. B. Was der Spieler am Tisch sagt …" oninput="onClaimChange()"></textarea>
+      </div>
+      <div class="popupField">
+        <div class="popupFieldLabel">Notizen <span style="opacity:.65;font-weight:400;">(nur Storyteller)</span></div>
+        <textarea class="popupInput popupNotes" id="popupNotes" rows="3" placeholder="Geheime Notizen …" oninput="onNotesChange()"></textarea>
+      </div>
+      <div class="popupFooter">
+        <button class="popupBtn primary" id="popupAbilityBtn" onclick="triggerPopupAbility()" style="display:none;">⚡ Fähigkeit</button>
+        <button class="popupBtn" onclick="closePopup()">Fertig</button>
+        <button class="popupBtn danger" onclick="clearCurrentSeat()">Leeren</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABILITY TOOLTIP -->
+  <div id="abilityTooltip">
+    <div class="abilityName" id="ttRoleName"></div>
+    <div class="abilityText" id="ttAbility"></div>
+  </div>
+
+  <!-- PANEL TOGGLE -->
+  <button id="panelToggleBtn" onclick="togglePanel()">⟨</button>
+
+  <!-- SIDE PANEL -->
+  <div id="sidePanel">
+    <div id="sidePanelHeader">
+      <span style="font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--gold);opacity:.75;text-transform:uppercase;">Town Square</span>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button class="btn sm" id="phaseToggleBtn" onclick="togglePhase()" title="Tag/Nacht wechseln" style="min-width:44px; display:flex; align-items:center; justify-content:center; font-size:16px;">☀️</button>
+        <button class="btn sm primary" onclick="nextStep()">▶ Next</button>
+      </div>
+    </div>
+    <div id="sidePanelBody">
+      <!-- stats -->
+      <div style="margin-bottom:12px;">
+        <div class="panelSectionTitle">Spielstand</div>
+        <div class="statsGrid">
+          <div class="statCell"><div class="statVal gold" id="stTotal">0</div><div class="statLbl">Spieler</div></div>
+          <div class="statCell"><div class="statVal g"    id="stAlive">0</div><div class="statLbl">Lebt</div></div>
+          <div class="statCell"><div class="statVal e"    id="stDead">0</div><div class="statLbl">Tot</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <!-- panel tabs: Night Order / Grimoire -->
+      <div class="panelTabs" role="tablist">
+        <button type="button" class="panelTab on" id="panelTabNight" aria-selected="true" onclick="setPanelTab('night')">☽ Night Order</button>
+        <button type="button" class="panelTab" id="panelTabGrimoire" aria-selected="false" onclick="setPanelTab('grimoire')">📋 Grimoire</button>
+        <button type="button" class="panelTab" id="panelTabJinx" aria-selected="false" onclick="setPanelTab('jinxes')">⚠ Jinx</button>
+        <button type="button" class="panelTab" id="panelTabFabled" aria-selected="false" onclick="setPanelTab('fabled')">✦ Fabled</button>
+        <button type="button" class="panelTab" id="panelTabKern" aria-selected="false" onclick="setPanelTab('kern')">◎ Kern</button>
+        <button type="button" class="panelTab" id="panelTabLimits" aria-selected="false" onclick="setPanelTab('limits')">⚖ Limits</button>
+        <button type="button" class="panelTab" id="panelTabMarkers" aria-selected="false" onclick="setPanelTab('markers')">🔖 Marker</button>
+        <button type="button" class="panelTab" id="panelTabTown" aria-selected="false" onclick="setPanelTab('town')">🏘 Town</button>
+        <button type="button" class="panelTab" id="panelTabBluffs" aria-selected="false" onclick="setPanelTab('bluffs')">🎭 Bluffs</button>
+        <button type="button" class="panelTab" id="panelTabNomination" aria-selected="false" onclick="setPanelTab('nomination')">🗳 Nomin.<span id="nomTabBadge" style="display:none;margin-left:3px;background:#e05555;color:#fff;border-radius:999px;font-size:7px;padding:1px 4px;vertical-align:middle;"></span></button>
+      </div>
+      <div id="panelNightBlock">
+        <div class="panelSectionTitle" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Night Order</span>
+          <span id="panelNightBadge" style="font-size:9px;color:var(--gold);opacity:.6;letter-spacing:.06em;"></span>
+        </div>
+        <div id="nightOrderEl"></div>
+      </div>
+      <div id="panelGrimoireBlock" style="display:none;">
+        <div class="panelSectionTitle">Spieler</div>
+        <div id="grimoireListEl"></div>
+      </div>
+      <div id="panelJinxBlock" style="display:none;">
+        <div id="jinxPanelEl"></div>
+      </div>
+      <div id="panelFabledBlock" style="display:none;">
+        <div id="fabledPanelEl"></div>
+      </div>
+      <div id="panelKernBlock" style="display:none;">
+        <div id="kernPanelEl"></div>
+      </div>
+      <div id="panelLimitsBlock" style="display:none;">
+        <div id="limitsPanelEl"></div>
+      </div>
+      <div id="panelMarkersBlock" style="display:none;">
+        <div id="markersPanelEl"></div>
+      </div>
+      <div id="panelTownBlock" style="display:none;">
+        <div id="townPanelEl"></div>
+      </div>
+      <div id="panelBluffsBlock" style="display:none;">
+        <div id="bluffsPanelEl"></div>
+      </div>
+      <div id="panelNominationBlock" style="display:none;">
+        <div id="nominationPanelEl"></div>
+      </div>
+      <div class="divider"></div>
+      <div id="layoutControls" style="display:flex;flex-direction:column;gap:10px;padding:12px 0;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label for="circleSizeRange" style="flex:0 0 90px;font-size:12px;">Kreis Größe</label>
+          <input type="range" id="circleSizeRange" min="50" max="250" value="130" style="flex:1;min-height:44px;">
+          <span id="circleSizeLabel" style="min-width:36px;font-variant-numeric:tabular-nums;font-size:12px;">130%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label for="circleWidthRange" style="flex:0 0 90px;font-size:12px;">Kreis Breite</label>
+          <input type="range" id="circleWidthRange" min="50" max="250" value="170" style="flex:1;min-height:44px;">
+          <span id="circleWidthLabel" style="min-width:36px;font-variant-numeric:tabular-nums;font-size:12px;">170%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <label for="seatSizeRange" style="flex:0 0 90px;font-size:12px;">Seat Größe</label>
+          <input type="range" id="seatSizeRange" min="70" max="250" value="100" style="flex:1;min-height:44px;">
+          <span id="seatSizeLabel" style="min-width:36px;font-variant-numeric:tabular-nums;font-size:12px;">100%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p id="botcLegalFooter" style="position:fixed;bottom:4px;left:8px;right:8px;margin:0;font-size:9px;line-height:1.35;color:rgba(226,214,188,.38);text-align:center;pointer-events:none;z-index:5;max-width:900px;margin-left:auto;margin-right:auto;">
+  Inoffizielles Fan-Hilfsmittel — ersetzt keine Lizenz oder Materialien der Pandemonium Institute. Blood on the Clocktower™ ist deren Marke.
+</p>
+
+<!-- SETUP MODAL -->
+<div id="setupBackdrop" class="setupBackdrop" onclick="closeSetupModal()" aria-hidden="true"></div>
+<div id="setupModal" class="modal" style="display:none;">
+          <div class="modalContent">
+            <!-- PHASE 0: Script + Player Count -->
+            <div id="setupPhase0" style="display:flex; flex-direction:column; gap:20px;">
+              <h2 style="text-align:center; margin:0;">🎲 SETUP: Script & Spieler</h2>
+              
+              <div style="text-align:center;">
+                <p style="opacity:.8; margin:0 0 10px 0;">Wähle das Script:</p>
+                <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+                  <button class="scriptCard" onclick="selectScript('trouble_brewing')" id="scriptBtn_trouble_brewing">
+                    <span class="scriptCardIcon">🌙</span>
+                    <span class="scriptCardTitle">Trouble Brewing</span>
+                    <span class="scriptCardDesc">Klassisches Einsteiger-Script</span>
+                  </button>
+                  <button class="scriptCard" onclick="selectScript('bad_moon_rising')" id="scriptBtn_bad_moon_rising">
+                    <span class="scriptCardIcon">🩸</span>
+                    <span class="scriptCardTitle">Bad Moon Rising</span>
+                    <span class="scriptCardDesc">Mehr Interaktion & Chaos</span>
+                  </button>
+                  <button class="scriptCard" onclick="selectScript('sects_and_violets')" id="scriptBtn_sects_and_violets">
+                    <span class="scriptCardIcon">⚗️</span>
+                    <span class="scriptCardTitle">Sects & Violets</span>
+                    <span class="scriptCardDesc">Komplexe Rollen & Bluffs</span>
+                  </button>
+                  <button class="scriptCard" onclick="selectScript('custom')" id="scriptBtn_custom">
+                    <span class="scriptCardIcon">📜</span>
+                    <span class="scriptCardTitle">Custom</span>
+                    <span class="scriptCardDesc">Eigenes Script laden</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom Script JSON Import (nur sichtbar wenn Custom gewählt) -->
+              <div id="customScriptImportBox" style="display:none; flex-direction:column; gap:10px; background:rgba(20,18,42,.5); border:1px solid rgba(201,168,76,.3); border-radius:10px; padding:14px;">
+                <div style="font-size:13px; font-weight:700; color:#c9a84c; letter-spacing:.08em;">📥 Custom Script JSON laden</div>
+                <div style="font-size:11px; opacity:.75; line-height:1.5;">
+                  JSON von <em>script.bloodontheclocktower.com</em> hier einfügen <strong>oder</strong> Datei wählen.
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                  <button type="button" class="btn" onclick="document.getElementById('customScriptFileInput').click()" style="font-size:12px; padding:6px 12px;">📁 Datei wählen</button>
+                  <input type="file" id="customScriptFileInput" accept=".json" style="display:none;" onchange="onCustomScriptFileLoad(event)">
+                  <span style="opacity:.5; font-size:11px;">oder JSON einfügen:</span>
+                </div>
+                <textarea id="customScriptJsonPaste" rows="4" placeholder='[{"id":"_meta","name":"Mein Script"},  "washerwoman", "imp", ...]' style="width:100%; background:#0a0817; color:#e2d6bc; border:1px solid rgba(255,255,255,.2); border-radius:6px; padding:8px; font-size:11px; font-family:monospace; resize:vertical;"></textarea>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <button type="button" class="btn" onclick="onCustomScriptJsonLoad()" style="font-size:12px; padding:6px 14px; background:rgba(201,168,76,.2); border-color:#c9a84c;">✓ Script laden</button>
+                  <span id="customScriptStatus" style="font-size:11px; opacity:.8;"></span>
+                </div>
+              </div>
+
+              <div style="text-align:center;">
+                <p style="opacity:.8; margin:0 0 10px 0;">Wähle die Anzahl Spieler:</p>
+                <div style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; max-width:400px; margin:0 auto;">
+                  <button class="playerCountBtn" id="playerBtn_5"  onclick="selectPlayerCount(5)">5</button>
+                  <button class="playerCountBtn" id="playerBtn_6"  onclick="selectPlayerCount(6)">6</button>
+                  <button class="playerCountBtn" id="playerBtn_7"  onclick="selectPlayerCount(7)">7</button>
+                  <button class="playerCountBtn" id="playerBtn_8"  onclick="selectPlayerCount(8)">8</button>
+                  <button class="playerCountBtn" id="playerBtn_9"  onclick="selectPlayerCount(9)">9</button>
+                  <button class="playerCountBtn" id="playerBtn_10" onclick="selectPlayerCount(10)">10</button>
+                  <button class="playerCountBtn" id="playerBtn_11" onclick="selectPlayerCount(11)">11</button>
+                  <button class="playerCountBtn" id="playerBtn_12" onclick="selectPlayerCount(12)">12</button>
+                  <button class="playerCountBtn" id="playerBtn_13" onclick="selectPlayerCount(13)">13</button>
+                  <button class="playerCountBtn" id="playerBtn_14" onclick="selectPlayerCount(14)">14</button>
+                  <button class="playerCountBtn" id="playerBtn_15" onclick="selectPlayerCount(15)">15</button>
+                </div>
+              </div>
+
+              <div style="text-align:center;">
+                <p id="setupPhase0Summary" style="opacity:.8; min-height:20px;"></p>
+                <button class="btn" id="phase0NextBtn" onclick="startPhase1()" disabled style="cursor:not-allowed; opacity:.5;">Weiter →</button>
+              </div>
+            </div>
+
+            <!-- PHASE 1: Namen auf Kreisen (Vollbild-Overlay, Kreise 1:1 an Spielpositionen) -->
+            <div id="setupPhase1" style="display:none; position:fixed; inset:0; z-index:1001; background:rgba(8,6,20,.96);">
+              <!-- Kreise exakt an Spielpositionen -->
+              <div id="setupPhase1Seats" style="position:absolute; inset:0;"></div>
+              <!-- Header-Overlay oben -->
+              <div style="position:absolute; top:0; left:0; right:0; padding:10px 20px 20px; text-align:center; background:linear-gradient(to bottom, rgba(8,6,20,.95) 65%, transparent); pointer-events:none; z-index:2;">
+                <h2 style="margin:0 0 4px; font-family:'Cinzel Decorative','Cinzel',serif; font-size:clamp(13px,1.6vw,18px); color:var(--gold);">📝 Namen vergeben</h2>
+                <p id="setupPhase1Title" style="margin:0; opacity:.75; font-size:clamp(11px,1.2vw,14px);"></p>
+              </div>
+              <!-- Footer-Overlay unten -->
+              <div style="position:absolute; bottom:0; left:0; right:0; padding:20px 20px 24px; text-align:center; background:linear-gradient(to top, rgba(8,6,20,.95) 65%, transparent); z-index:2;">
+                <p id="setupPhase1Counter" style="margin:0 0 10px; opacity:.8; font-size:13px;"></p>
+                <button class="btn" id="phase1NextBtn" onclick="startPhase2()" disabled style="cursor:not-allowed; opacity:.5;">Weiter →</button>
+              </div>
+            </div>
+
+            <!-- PHASE 2: Token Draft -->
+            <div id="setupPhase2" style="display:none; flex-direction:column; gap:0; height:100%; overflow:hidden;">
+              <!-- Scrollable content area -->
+              <div style="flex:1; overflow-y:auto; padding:32px 5vw 16px;">
+                <h2 style="text-align:center; margin:0 0 8px;">🎲 TOKEN DRAFT</h2>
+                <p id="setupPhase2Title" style="text-align:center; opacity:.8; margin:0 0 16px;"></p>
+
+                <div id="setupPhase2Container" style="
+                  display: grid;
+                  grid-template-columns: 1fr;
+                  gap: 15px;
+                  padding: 10px;
+                "></div>
+
+                <!-- Live-preview after token distribution -->
+                <div id="tokenDistPreview" style="display:none; margin-top:16px; padding:12px 14px; background:rgba(201,168,76,.07); border:1px solid rgba(201,168,76,.22); border-radius:12px;">
+                  <div style="font-family:Cinzel,serif; font-size:10px; letter-spacing:.1em; text-transform:uppercase; opacity:.55; margin-bottom:8px;">Vorschau Rollenzuteilung</div>
+                  <div id="tokenDistPreviewList" style="display:flex; flex-direction:column; gap:6px;"></div>
+                </div>
+              </div>
+
+              <!-- Sticky footer with action buttons -->
+              <div style="position:sticky; bottom:0; background:linear-gradient(to bottom, transparent, var(--ink) 30%); padding:16px 5vw 28px; display:flex; flex-direction:column; gap:10px; border-top:1px solid rgba(255,255,255,.06);">
+                <p id="setupPhase2Summary" style="opacity:.8; margin:0; text-align:center; font-size:13px;"></p>
+                <div style="display:flex; gap:10px;">
+                  <button type="button" class="btn" id="distributeTokensBtn" onclick="handleDistributeTokensClick()" style="flex:1;">🎲 Tokens Verteilen</button>
+                  <button class="btn" id="phase2NextBtn" onclick="startPhase3()" disabled style="cursor:not-allowed; opacity:.5; flex:1;">Weiter →</button>
+                </div>
+                <button type="button" class="btn primary" id="startGameBtn" style="width:100%; padding:14px; font-size:14px;" onclick="handleStartGameClick()">🎮 SPIEL STARTEN</button>
+                <button type="button" class="btn" id="selfPlayBtn" onclick="selfPlayMode()" style="width:100%; padding:12px; font-size:13px; opacity:.85; border-color:rgba(201,168,76,.4);">📓 Selbst Spielen</button>
+              </div>
+            </div>
+
+            <!-- DRUNK SELECTION MODAL (vereinfacht) -->
+            <div id="drunkSelectionModal" style="display:none; flex-direction:column; gap:15px;">
+              <h2 style="text-align:center; margin:0;">🍺 DRUNK</h2>
+              <p style="text-align:center; opacity:.9; margin:0; font-size:14px;">
+                Ein Townsfolk ist Drunk (verdunkelt) und sieht sich selbst als anderer Charakter.
+              </p>
+              <p style="text-align:center; opacity:.7; margin:0; font-size:12px;">
+                Phase 3: Bitte einen Townsfolk als DRUNK markieren.
+              </p>
+              <div style="text-align:center;">
+                <button type="button" class="btn" id="drunkModalOkBtn" onclick="confirmDrunkSelected(); closeDrunkModal();" style="background: rgba(201,168,76,.3); border-color: #c9a84c;">OK, Drunk ausgewählt</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<!-- SUMMARY MODAL (Nacht-Zusammenfassung) -->
+<div id="summaryBackdrop" class="setupBackdrop" onclick="closeSummaryModal()" aria-hidden="true"></div>
+<div id="summaryModal" class="setupModal" role="dialog" aria-labelledby="summaryModalTitle" aria-modal="true">
+  <div class="setupModalInner">
+    <div class="setupHeader">
+      <h2 id="summaryModalTitle" class="setupTitle">Nacht 1 Zusammenfassung</h2>
+      <button type="button" class="setupCloseBtn" onclick="closeSummaryModal()" aria-label="Schließen">✕</button>
+    </div>
+    <div class="setupBody scrollContainer" style="max-height:60vh; overflow-y:auto;">
+      <div id="summaryContent"></div>
+    </div>
+    <div class="setupFooter">
+      <button type="button" class="setupFooterBtn" onclick="closeSummaryModal()">Schließen</button>
+      <button type="button" class="setupFooterBtn setupFooterBtnPrimary" onclick="newNight(); closeSummaryModal();">Neue Nacht starten</button>
+    </div>
+  </div>
+</div>
+
+<script src="./state.js"></script>
+<script src="./idb-mirror.js"></script>
+<script src="./jinxes-embedded.js"></script>
+<script src="./globals.js"></script>
+<script src="./story-log.js"></script>
+<script src="./game-core.js"></script>
+<script src="./setup.js"></script>
+<script src="./game-draw.js"></script>
+<script src="./game-setup-modal.js"></script>
+<script src="./ui-town.js"></script>
+<script src="./ui-nightorder.js"></script>
+<script src="./private-info-overlay.js"></script>
+<script src="./botc-abilities.js"></script>
+<!-- TOAST -->
+<div id="toast" class="toast" aria-live="polite"></div>
+<script>
+(function() {
+  let hasMouse = false;
+  let mouseResetTimer = null;
+  const mouseReset = () => { hasMouse = true; if (mouseResetTimer) clearTimeout(mouseResetTimer); mouseResetTimer = setTimeout(() => { hasMouse = false; }, 1500); };
+  ['mousedown','mousemove'].forEach(ev => document.addEventListener(ev, mouseReset, { passive: true }));
+  function isFormControl(el) {
+    if (!el || !el.tagName) return false;
+    const t = el.tagName.toLowerCase();
+    return t === 'input' || t === 'textarea' || t === 'select';
+  }
+  function sendMouse(type, touch) {
+    if (hasMouse) return;
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (isFormControl(el)) return;
+    const e = new MouseEvent(type, { bubbles: true, cancelable: true, view: window, clientX: touch.clientX, clientY: touch.clientY, buttons: type === 'mouseup' ? 0 : 1 });
+    (el || document.body).dispatchEvent(e);
+  }
+  document.addEventListener('touchstart', e => { if (e.changedTouches.length) sendMouse('mousedown', e.changedTouches[0]); }, { passive: true });
+  document.addEventListener('touchmove', e => { if (e.changedTouches.length) sendMouse('mousemove', e.changedTouches[0]); }, { passive: true });
+  document.addEventListener('touchend', e => { if (e.changedTouches.length) sendMouse('mouseup', e.changedTouches[0]); }, { passive: true });
+})();
+
+// ═══════════════ RESIZE ═══════════════
+function handleLayoutEvent() {
+  const seatEl = document.getElementById('seatSizeRange');
+  const seatLabel = document.getElementById('seatSizeLabel');
+  if (seatEl && seatLabel) {
+    seatLabel.textContent = (Number(seatEl.value) || 100) + '%';
+  }
+  const circleSizeEl = document.getElementById('circleSizeRange');
+  const circleSizeLabel = document.getElementById('circleSizeLabel');
+  if (circleSizeEl && circleSizeLabel) {
+    circleSizeLabel.textContent = (Number(circleSizeEl.value) || 130) + '%';
+  }
+  const circleWidthEl = document.getElementById('circleWidthRange');
+  const circleWidthLabel = document.getElementById('circleWidthLabel');
+  if (circleWidthEl && circleWidthLabel) {
+    circleWidthLabel.textContent = (Number(circleWidthEl.value) || 170) + '%';
+  }
+  draw();
+}
+let raf = null;
+window.addEventListener('resize', () => {
+  if (raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(() => { draw(); });
+});
+
+// ═══════════════ GLOBAL ERROR HANDLING ═══════════════
+function saveStateOnError() {
+  try {
+    scheduleSave();
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = null;
+    const state = {
+      seats,
+      nightNumber,
+      panelOpen,
+      script: currentScript,
+      activeFabledIds: (typeof activeFabledIds !== 'undefined' && Array.isArray(activeFabledIds)) ? activeFabledIds.slice() : []
+    };
+    try { localStorage.setItem(DEMO_STATE_KEY, JSON.stringify(state)); } catch (_) {}
+  } catch (_) {}
+}
+window.onerror = function() {
+  saveStateOnError();
+  if (typeof showToast === 'function') showToast('Fehler aufgetreten – Spielstand gesichert', 5000);
+  return true;
+};
+window.onunhandledrejection = function() {
+  saveStateOnError();
+  if (typeof showToast === 'function') showToast('Fehler aufgetreten – Spielstand gesichert', 5000);
+};
+
+// ═══════════════ SERVICE WORKER ═══════════════
+if ('serviceWorker' in navigator) {
+  if (location.protocol === 'http:' || location.protocol === 'https:') {
+    navigator.serviceWorker.register('./service-worker.js', { scope: './' }).catch(() => {});
+  }
+  navigator.serviceWorker.addEventListener('message', e => {
+    if (e.data && e.data.type === 'SW_UPDATED') {
+      const el = document.getElementById('toast');
+      if (el && typeof showToast === 'function') {
+        if (toastTimer) clearTimeout(toastTimer);
+        el.innerHTML = 'App aktualisiert – neu laden? <button type="button" class="toastDetailsBtn" onclick="location.reload();">Reload</button>';
+        el.classList.add('show');
+        toastTimer = setTimeout(() => { el.classList.remove('show'); el.textContent = ''; toastTimer = null; }, 8000);
+      }
+    }
+  });
+}
+
+// ═══════════════ INSTALL PROMPT (optional) ═══════════════
+let deferredInstallPrompt = null;
+let installPromptDismissed = false;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+try {
+  if (localStorage.getItem('botc_install_dismissed') === '1') installPromptDismissed = true;
+} catch (_) {}
+function maybeShowInstallToast() {
+  if (installPromptDismissed || !deferredInstallPrompt || seatClickCount < 1) return;
+  const el = document.getElementById('toast');
+  if (!el || !el.classList) return;
+  if (toastTimer) clearTimeout(toastTimer);
+  el.innerHTML = 'App installieren für Offline-Nutzung <button type="button" class="toastDetailsBtn" onclick="triggerInstallPrompt();">Installieren</button>';
+  el.classList.add('show');
+  toastTimer = setTimeout(() => { el.classList.remove('show'); el.textContent = ''; toastTimer = null; }, 8000);
+}
+function triggerInstallPrompt() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  deferredInstallPrompt.userChoice.then(() => { deferredInstallPrompt = null; try { localStorage.setItem('botc_install_dismissed', '1'); } catch(_) {} installPromptDismissed = true; });
+}
+
+// ═══════════════ CUSTOM SCRIPT IMPORT ═══════════════
+function onCustomScriptFileLoad(ev) {
+  const file = ev && ev.target && ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function() {
+    const ta = document.getElementById('customScriptJsonPaste');
+    if (ta) ta.value = reader.result;
+    onCustomScriptJsonLoad();
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function onCustomScriptJsonLoad() {
+  const ta = document.getElementById('customScriptJsonPaste');
+  const statusEl = document.getElementById('customScriptStatus');
+  if (!ta) return;
+  const json = ta.value.trim();
+  if (!json) {
+    if (statusEl) { statusEl.textContent = '⚠ Kein JSON eingegeben.'; statusEl.style.color = '#f87171'; }
+    return;
+  }
+  if (typeof botcImportCustomScriptJSON !== 'function') {
+    if (statusEl) { statusEl.textContent = '⚠ Importfunktion nicht geladen.'; statusEl.style.color = '#f87171'; }
+    return;
+  }
+  const result = botcImportCustomScriptJSON(json);
+  if (!result.ok) {
+    if (statusEl) {
+      statusEl.textContent = '❌ ' + (result.errors[0] || 'Fehler beim Laden');
+      statusEl.style.color = '#f87171';
+    }
+    return;
+  }
+  // Update label for custom script
+  const labelKey = window._botcCustomScriptLabel || result.name;
+  if (typeof SCRIPT_LABELS !== 'undefined') {
+    SCRIPT_LABELS['custom'] = labelKey;
+  }
+  if (statusEl) {
+    statusEl.textContent = '✓ ' + result.name + (result.author ? ' (' + result.author + ')' : '') + ' – ' + result.roleCount + ' Rollen geladen' + (result.errors.length ? ' (' + result.errors.length + ' Warnungen)' : '');
+    statusEl.style.color = '#4ade80';
+  }
+  // Update custom script button label
+  const customBtn = document.getElementById('scriptBtn_custom');
+  if (customBtn) customBtn.textContent = result.name || 'Custom';
+  // Ensure custom is selected
+  if (typeof selectScript === 'function') selectScript('custom');
+  if (typeof showToast === 'function') {
+    showToast('Script "' + result.name + '" geladen (' + result.roleCount + ' Rollen)', 3000);
+  }
+  // Auto-advance: wenn Spieleranzahl bereits gewählt → direkt zu Phase 1
+  if (typeof gameSetup !== 'undefined' && gameSetup.playerCount && typeof startPhase1 === 'function') {
+    setTimeout(startPhase1, 400);
+  } else {
+    // Spieleranzahl noch nicht gewählt → Sektion hervorheben
+    const countSection = document.querySelector('[id^="playerBtn_"]');
+    if (countSection) {
+      const section = countSection.closest('div');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        section.style.transition = 'box-shadow .3s';
+        section.style.boxShadow = '0 0 0 2px rgba(201,168,76,.8)';
+        section.style.borderRadius = '10px';
+        setTimeout(() => { section.style.boxShadow = ''; }, 2000);
+      }
+    }
+  }
+}
+
+// Show/hide custom import box based on script selection
+(function() {
+  var orig = null;
+  function patchSelectScript() {
+    if (typeof selectScript === 'function' && !selectScript._patched) {
+      var _orig = selectScript;
+      window.selectScript = function(scriptId) {
+        _orig(scriptId);
+        var box = document.getElementById('customScriptImportBox');
+        if (box) box.style.display = scriptId === 'custom' ? 'flex' : 'none';
+      };
+      window.selectScript._patched = true;
+    }
+  }
+  // Patch after DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', patchSelectScript);
+  } else {
+    patchSelectScript();
+  }
+})();
+
+// ═══════════════ INIT ═══════════════
+(async function() {
+  await loadRoles();
+  if (loadSavedState()) {
+    // Apply saved panel state to DOM before first draw so getPlayfieldRect() sees the correct layout
+    const _panel = document.getElementById('sidePanel');
+    const _pBtn  = document.getElementById('panelToggleBtn');
+    if (_panel) _panel.classList.toggle('collapsed', !panelOpen);
+    if (_pBtn)  { _pBtn.classList.toggle('collapsed', !panelOpen); _pBtn.textContent = panelOpen ? '⟨' : '⟩'; }
+    buildNightOrder();
+    draw();
+    renderPanel();
+    updateNightLabel();
+  } else {
+    demo('mid');
+  }
+  setTimeout(() => { if (seatClickCount >= 1) maybeShowInstallToast(); }, 30000);
+})();
+
+// Seat Size Slider + Circle Size/Width
+(function() {
+  function addSlider(id, labelId, def) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', handleLayoutEvent);
+    const label = document.getElementById(labelId);
+    if (label) label.textContent = (Number(el.value) || def) + '%';
+  }
+  addSlider('seatSizeRange', 'seatSizeLabel', 100);
+  addSlider('circleSizeRange', 'circleSizeLabel', 130);
+  addSlider('circleWidthRange', 'circleWidthLabel', 170);
+})();
+</script>
+</body>
+</html>

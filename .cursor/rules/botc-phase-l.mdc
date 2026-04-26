@@ -1,0 +1,17 @@
+---
+description: Phase L — Panel „Limits“ (Token-Tabelle vs. Grimoire)
+alwaysApply: true
+---
+
+# Phase L — Limits
+
+## Inhalt
+
+- Panel-Tab **„Limits“**: Vergleich **offizielle Token-Tabelle** (`TOKEN_LIMITS`, nur **5–15 Spieler**) mit **Ist-Zählung** der Grimoire-Sitze nach `ROLES.type` (Townsfolk / Outsider / Minion / Dämon).
+- **Traveller** und **ohne Rolle** (`unset`) werden gesondert erwähnt; Traveller fließen nicht in T/O/M/D-Soll ein.
+- Hilfsfunktionen in **`globals.js`**: `botcTokenTableLimitsForPlayerCount`, `botcCountGrimoireByTokenSlot` (auch auf `window` für Konsole/Debug).
+
+## Hinweise
+
+- Abweichungen sind **normal** bei Custom-Script, Baron, zusätzlichen Outsidern, Travellern am Tisch oder unfertigem Grimoire — Panel ist **Orientierung**, kein hartes „Spiel ungültig“.
+- Danach **Phase M (Marker)**: `.cursor/rules/botc-phase-m.mdc`. **`BOTC_PHASE_ACTIVE`** entspricht dem jeweils letzten Meilenstein.

@@ -1,0 +1,23 @@
+---
+description: Phase J — Leiter-Journal (StoryLog, Panel Protokoll); Speichern/Export
+alwaysApply: true
+---
+
+# Phase J — Journal / Protokoll
+
+## Umfang
+
+- **`story-log.js`**: `window.BOTC.StoryLog` (`append`, `getEntries`, `loadFromState`, `clear`, `toPlainText`).
+- **Persistenz**: `storyLog` im `BOTC.State.save`-Payload und im `DEMO_STATE_KEY`-Fallback (`game-core.js`); **Export/Import** (`exportGame` / `onImportFile`).
+- **UI**: Seitenpanel-Tab **„Protokoll“** (`game-draw.js` → `renderJournalPanel`).
+- **Automatik**: `newNight()` und Phasen-Umschalter ☀/🌙 (`togglePhase`) schreiben kurze Standardzeilen.
+
+## Regeln
+
+- Journal-Einträge nicht still abschalten oder aus Save/Export entfernen ohne Nutzerwunsch.
+- **Token-Bild-Politik** bleibt unberührt (`.cursor/rules/botc-token-images-frozen.mdc`).
+- Danach oft **Phase K** (Panel „Kern“): `.cursor/rules/botc-phase-k.mdc`. **`BOTC_PHASE_ACTIVE`** je nach Stand **`'K'`** oder höher.
+
+## Erweiterungen (später)
+
+- Optional: Hooks aus `botc-abilities.js` für markante Aktionen; Vorsicht vor Log-Spam.

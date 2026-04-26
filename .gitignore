@@ -1,0 +1,14 @@
+node_modules/
+.vercel/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.swp
+*.bak
+*.tmp
+*~
+.env
+.env.*
+.cursor/*.local.*
+.claude/

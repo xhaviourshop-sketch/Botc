@@ -1,0 +1,29 @@
+{
+  "meta": {
+    "version": 1
+  },
+  "roles": {
+    "example_seer": {
+      "id": "example_seer",
+      "name": "Beispiel-Seher",
+      "team": "good",
+      "type": "Townsfolk",
+      "ability": "Jede Nacht: Du erfährst, ob ein Spieler gut oder böse ist.",
+      "reminder": "Wähle einen Spieler; du erfährst, ob er gut oder böse ist.",
+      "summary": "Vollständige Beispielrolle mit allen vom Code genutzten Feldern (id, name, team, type, ability, reminder, summary, short, quickTemplates, nightOrder).",
+      "short": "Seher",
+      "quickTemplates": [
+        { "kind": "note", "label": "Ergebnis Nacht X", "text": "Ergebnis: ____" },
+        { "kind": "system", "label": "System: Info", "text": "Info an Spieler: ____" }
+      ],
+      "nightOrder": {
+        "firstNight": [
+          { "order": 50, "phase": "first", "label": "Beispiel-Seher: Info geben", "key": "info" }
+        ],
+        "otherNights": [
+          { "order": 50, "phase": "other", "label": "Beispiel-Seher: Info geben", "key": "info" }
+        ]
+      }
+    }
+  }
+}

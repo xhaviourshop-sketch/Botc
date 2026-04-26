@@ -1,0 +1,19 @@
+---
+description: Token- und Rollenbild-URLs — feste Reihenfolge, nicht ändern ohne ausdrückliche Nutzeranweisung
+alwaysApply: true
+---
+
+# BotC: Rollenbilder / Sitze / Icons (EINVERNEHMLICH GEFROREN)
+
+Diese Reihenfolge ist absichtlich und für den Nutzer „perfekt“ validiert. **Nicht umstellen, nicht „vereinfachen“, nicht remote-first unter `file://` wieder einführen**, es sei denn der Nutzer verlangt das **explizit** schriftlich.
+
+## `roleImageUrlList` / `roleImageUrlListForSeat` in `globals.js`
+
+- **`BOTC_LOCAL_TOKEN_FIRST` / `BOTC_SEAT_LOCAL_TOKEN_FIRST`**: zuerst `assets/tokens` (.webp, .png), dann CDN, dann `./icons/`.
+- **`file://`** (index.html per Doppelklick): zuerst **`./icons/*.webp`**, dann `assets/tokens`, zuletzt CDN (CDN in SVG `<image>` unter `file://` ist oft nutzlos).
+- **`http(s):`**: zuerst **CDN** (`remoteImage`), dann `assets/tokens`, dann `./icons/`.
+
+## Betroffene Stellen
+
+- Änderungen nur mit Nutzer-Go: `globals.js` (`roleImageUrlList`, `roleLocalTokenUrls`, `botcIsFileProtocol`).
+- Prüfen bei Refactors: `game-draw.js`, `ui-town.js`, `private-info-overlay.js` (müssen dieselbe Liste nutzen, kein paralleles Icon-Mapping nur für `./icons/` ohne diese Funktionen).

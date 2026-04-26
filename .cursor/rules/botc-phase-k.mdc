@@ -1,0 +1,18 @@
+---
+description: Phase K — Panel „Kern“ (Rollenübersicht am Tisch)
+alwaysApply: true
+---
+
+# Phase K — Kern
+
+## Inhalt
+
+- Seitenpanel-Tab **„Kern“**: alle **zugewiesenen Sitz-Rollen** (eindeutig), alphabetisch, mit Typzeile und gekürztem `ability`-Text aus `ROLES`.
+- Mehrfach dieselbe Rolle auf mehreren Sitzen: Suffix **`×n`**.
+- Implementierung: **`renderKernPanel`** / **`renderKernPanel` on `window`** in `game-draw.js`; HTML in `index.html` (`panelKernBlock`, `kernPanelEl`).
+
+## Regeln
+
+- Bei Anpassungen **Grimoire-Farblogik** (`teamOf`) wiederverwenden, keine zweite Team-Logik einführen.
+- Keine Änderung an **Token-Bild-Politik** (frozen rule).
+- Danach **Phase L (Limits)**: `botc-phase-l.mdc`, **Phase M (Marker)**: `botc-phase-m.mdc`. **`BOTC_PHASE_ACTIVE`** entspricht dem jeweils letzten Meilenstein.

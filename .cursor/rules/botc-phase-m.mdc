@@ -1,0 +1,17 @@
+---
+description: Phase M — Panel „Marker“ (Grimoire-Zustände & Notizen)
+alwaysApply: true
+---
+
+# Phase M — Marker
+
+## Inhalt
+
+- Seitenpanel-Tab **„Marker“**: alle **Sitze mit Inhalt** — mindestens ein **Grimoire-Marker** (`MARKERS`), **Erinnerungs-Chip** (`reminder`) oder **Leiter-Notiz** (`notes` im Sitz-Popup).
+- Zeilen sind **anklickbar** und öffnen denselben Sitz wie im Grimoire-Panel (`openPopupFromGrimoire`).
+- Hilfsfunktion **`botcCountSeatsWithMarkerActivity`** in **`globals.js`** (auf **`window`**) für Konsole und **Phase-I-Report**.
+
+## Regeln
+
+- Keine zweite Datenquelle: nur bestehende Sitz-Felder aus `game-core` / Popup.
+- **`window.BOTC_PHASE_ACTIVE`** nach diesem Meilenstein typischerweise **`'M'`**.

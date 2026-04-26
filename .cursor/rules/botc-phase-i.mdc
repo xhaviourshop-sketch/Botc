@@ -1,0 +1,23 @@
+---
+description: Phase I — Leiter-Diagnose, Ability-Tiefe; Token-Bild-Regeln nicht anfassen
+alwaysApply: true
+---
+
+# Phase I (BotC Storyteller)
+
+## Ziel
+
+- **Transparenz** für den Leiter: Stubs vs. echte Ability-Handler, Scripts, Jinxes.
+- **Schrittweise Vertiefung** in `botc-abilities.js` (Stubs durch echte Flows ersetzen), ohne UX-Regression.
+- **Nicht ändern:** `.cursor/rules/botc-token-images-frozen.mdc` (Rollenbild-Reihenfolge).
+
+## Werkzeuge
+
+- Nach vollem Seitenladen (inkl. `botc-abilities.js`): **`BOTC_runPhaseIReport()`** in der Browser-Konsole.
+- Bereits vorhanden aus Phase H: **`BOTC_runPhaseHSelfCheck()`**, **`BOTC_runActiveScriptSelfCheck()`**.
+- Nachgelagerte Phasen: **J (Journal)**, **K (Kern)**, **L (Limits)**, **M (Marker)** — siehe `botc-phase-j.mdc`, `botc-phase-k.mdc`, `botc-phase-l.mdc`, `botc-phase-m.mdc`. **`BOTC_PHASE_ACTIVE`** folgt dem letzten Meilenstein.
+
+## Arbeitsweise
+
+- Pro Session lieber **eine Rolle oder ein Script** vertiefen als breite Refactors.
+- Neue Ability-Logik an bestehende Muster in `botc-abilities.js` anbinden (`buildCtx`, `openOverlay`, `beginPick`).

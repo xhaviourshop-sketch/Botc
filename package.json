@@ -1,0 +1,20 @@
+{
+  "name": "botc-storyteller",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "npx serve . --listen 8080 --no-clipboard",
+    "roles:sync-fabled": "node scripts/merge-fabled-from-upstream.js",
+    "roles:embed-globals": "node scripts/sync-globals-roles-data.js",
+    "roles:custom-all": "node scripts/build-custom-script.js",
+    "roles:refresh": "node scripts/merge-fabled-from-upstream.js; node scripts/build-custom-script.js; node scripts/sync-globals-roles-data.js",
+    "assets:tokens": "node scripts/download-role-tokens.js",
+    "assets:tokens:force": "node scripts/download-role-tokens.js --force",
+    "jinxes:embed": "node scripts/embed-jinxes.js",
+    "jinxes:merge": "node scripts/merge-jinxes-from-upstream.js && node scripts/embed-jinxes.js",
+    "roles:audit-night": "node scripts/audit-night-order.js",
+    "roles:patch-night": "node scripts/patch-night-order-from-upstream.js",
+    "abilities:check": "node scripts/check-botc-abilities.js",
+    "smoke": "node scripts/smoke-checks.js",
+    "ci": "node scripts/smoke-checks.js"
+  }
+}

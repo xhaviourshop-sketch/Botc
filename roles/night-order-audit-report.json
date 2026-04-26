@@ -1,0 +1,176 @@
+{
+  "generatedAt": "2026-03-31T21:53:34.008Z",
+  "upstream": null,
+  "roleCount": 170,
+  "emptyBothNightArrays": [
+    "alsaahir",
+    "artist",
+    "atheist",
+    "cannibal",
+    "fisherman",
+    "fool",
+    "mayor",
+    "minstrel",
+    "pacifist",
+    "princess",
+    "savant",
+    "slayer",
+    "soldier",
+    "tea_lady",
+    "virgin",
+    "drunk",
+    "golem",
+    "heretic",
+    "hermit",
+    "klutz",
+    "mutant",
+    "plague_doctor",
+    "politician",
+    "puzzlemaster",
+    "recluse",
+    "saint",
+    "zealot",
+    "baron",
+    "boffin",
+    "boomdandy",
+    "goblin",
+    "mastermind",
+    "organ_grinder",
+    "psychopath",
+    "wizard",
+    "xaan",
+    "riot",
+    "apprentice",
+    "beggar",
+    "bishop",
+    "butcher",
+    "cacklejack",
+    "deviant",
+    "gangster",
+    "gnome",
+    "gunslinger",
+    "judge",
+    "matron",
+    "scapegoat",
+    "voudon"
+  ],
+  "fabledEmptyBoth": [
+    "angel",
+    "bootlegger",
+    "buddhist",
+    "djinn",
+    "doomsayer",
+    "duchess",
+    "fibbin",
+    "fiddler",
+    "hellslibrarian",
+    "revolutionary",
+    "sentinel",
+    "spiritofivory",
+    "stormcatcher",
+    "toymaker"
+  ],
+  "indexMismatch": [],
+  "strongNightActionButEmpty": [],
+  "missingNightOrderObject": [],
+  "emptyWithUpstreamClass": [],
+  "travelerById": {
+    "apprentice": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "barista": {
+      "emptyBoth": false,
+      "firstCount": 1,
+      "otherCount": 1
+    },
+    "beggar": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "bishop": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "bone_collector": {
+      "emptyBoth": false,
+      "firstCount": 0,
+      "otherCount": 1
+    },
+    "bureaucrat": {
+      "emptyBoth": false,
+      "firstCount": 1,
+      "otherCount": 1
+    },
+    "butcher": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "cacklejack": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "deviant": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "gangster": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "gnome": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "gunslinger": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "harlot": {
+      "emptyBoth": false,
+      "firstCount": 0,
+      "otherCount": 1
+    },
+    "judge": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "matron": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "scapegoat": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    },
+    "thief": {
+      "emptyBoth": false,
+      "firstCount": 1,
+      "otherCount": 1
+    },
+    "voudon": {
+      "emptyBoth": true,
+      "firstCount": 0,
+      "otherCount": 0
+    }
+  },
+  "metaChecksum": {
+    "sumScriptRolesExcludingFabled": 156,
+    "fabled": 14,
+    "impliedTotalInDataset": 170,
+    "roleKeysInFile": 170,
+    "metaTotalsBlockOk": true
+  }
+}
